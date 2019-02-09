@@ -1,0 +1,18 @@
+
+# dev utils
+ipdb
+ipython
+
+# docs
+sphinx
+
+# tests
+pytest
+pytest-cov
+
+# static analysis and style
+flake8
+mypy
+pylint
+yapf
+

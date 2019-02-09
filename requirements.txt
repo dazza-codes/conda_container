@@ -1,0 +1,6 @@
+#
+# Use conda_setup.sh to install these
+#
+
+python>=3.7
+
