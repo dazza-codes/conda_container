@@ -1,0 +1,29 @@
+
+# Match the python versions in:
+# - requirements.txt
+# - docker image
+
+image: python:3.7-stretch
+
+stages:
+  - code-quality
+  - code-test
+
+code_quality:
+    stage: code-quality
+    script:
+      - make pyinit CONDA_ENV=base
+      - make pylint
+
+code_types:
+    stage: code-quality
+    script:
+      - make pyinit CONDA_ENV=base
+      - make pytypehint
+
+code_test:
+    stage: code-test
+    script:
+      - make pyinit CONDA_ENV=base
+      - make pycoverage
+
