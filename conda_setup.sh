@@ -13,6 +13,9 @@ set -e
 test -z "$CONDA_ENV" && test -f environment.yml && \
     export CONDA_ENV=$(grep 'name:' environment.yml | sed -e 's/name:[ ]*//g')
 
+test -z "$CONDA_ENV" && test -f .env && \
+    CONDA_ENV=$(grep -e '^CONDA_ENV=.*' .env | cut -d '=' -f2)
+
 test -z "$CONDA_ENV" && \
     export CONDA_ENV=$(basename $(pwd))
 
