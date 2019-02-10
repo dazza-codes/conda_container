@@ -10,7 +10,13 @@
 
 set -e
 
-test -z "$CONDA_ENV" && export CONDA_ENV="conda-tmp-env"
+test -z "$CONDA_ENV" && test -f environment.yml && \
+    export CONDA_ENV=$(grep 'name:' environment.yml | sed -e 's/name:[ ]*//g')
+
+test -z "$CONDA_ENV" && \
+    export CONDA_ENV=$(basename $(pwd))
+
+echo -e "\nUsing conda env: ${CONDA_ENV}\n"
 
 source ./conda_funcs.sh
 
@@ -34,42 +40,50 @@ _conda3_env_usage() {
 usage: $0 [option]
 
 options:
--a  | --activate        info about 'conda activate $CONDA_ENV'
--d  | --deactivate      info about 'conda deactivate'
--c  | --create          create $CONDA_ENV
--i  | --install         install $CONDA_ENV with requirements.txt
--id | --install_dev     install $CONDA_ENV plus requirements.dev
--l  | --list            conda env list
--r  | --remove          remove $CONDA_ENV
--h  | --help
+-a   | --activate        info about 'conda activate $CONDA_ENV'
+-d   | --deactivate      info about 'conda deactivate'
+-c   | --create          create $CONDA_ENV
+-i   | --install         use conda to install environment.yml and/or requirements.txt
+-id  | --install_dev     use conda to install requirements.dev
+-ip  | --install_pip     use pip to install requirements.txt
+-ipd | --install_pip_dev use pip to install requirements.dev
+-l   | --list            conda env list
+-r   | --remove          remove $CONDA_ENV
+-h   | --help
 USAGE
 }
 
 case $1 in
-    -a | --activate )       _conda3_env_echo_activate
-                            exit
-                            ;;
-    -d | --deactivate )     _conda3_env_echo_deactivate
-                            exit
-                            ;;
-    -c | --create )         _conda3_env_create
-                            exit
-                            ;;
-    -i | --install )        _conda3_env_install
-                            exit
-                            ;;
-    -id | --install_dev )   _conda3_env_install_dev
-                            exit
-                            ;;
-    -l | --list )           conda info --envs
-                            exit
-                            ;;
-    -r | --remove )         _conda3_env_remove
-                            exit
-                            ;;
-    -h | --help )           _conda3_env_usage
-                            exit
-                            ;;
-    * )                     _conda3_env_usage
-                            exit 1
+    -a | --activate )           _conda3_env_echo_activate
+                                exit
+                                ;;
+    -d | --deactivate )         _conda3_env_echo_deactivate
+                                exit
+                                ;;
+    -c | --create )             _conda3_env_create
+                                exit
+                                ;;
+    -i | --install )            _conda3_env_install
+                                exit
+                                ;;
+    -id | --install_dev )       _conda3_env_install_dev
+                                exit
+                                ;;
+    -ip | --install_pip )       _conda3_env_pip_install
+                                exit
+                                ;;
+    -ipd | --install_pip_dev )  _conda3_env_pip_install_dev
+                                exit
+                                ;;
+    -l | --list )               conda info --envs
+                                exit
+                                ;;
+    -r | --remove )             _conda3_env_remove
+                                exit
+                                ;;
+    -h | --help )               _conda3_env_usage
+                                exit
+                                ;;
+    * )                         _conda3_env_usage
+                                exit 1
 esac
