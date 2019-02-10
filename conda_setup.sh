@@ -20,6 +20,8 @@ echo -e "\nUsing conda env: ${CONDA_ENV}\n"
 
 source ./conda_funcs.sh
 
+_conda3_init
+
 CONDA_FOUND=false
 
 if _conda3_is_function; then
@@ -69,10 +71,10 @@ case $1 in
     -id | --install_dev )       _conda3_env_install_dev
                                 exit
                                 ;;
-    -ip | --install_pip )       _conda3_env_pip_install
+    -ip | --install_pip )       _conda3_env_activate && _conda3_env_pip_install
                                 exit
                                 ;;
-    -ipd | --install_pip_dev )  _conda3_env_pip_install_dev
+    -ipd | --install_pip_dev )  _conda3_env_activate && _conda3_env_pip_install_dev
                                 exit
                                 ;;
     -l | --list )               conda info --envs
