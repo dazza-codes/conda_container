@@ -10,17 +10,26 @@ See [INSTALL](INSTALL.md)
 This is a conda project template.  It's intended to be used as a starting point
 for new repositories that will use conda for a python project.
 
+The make rules and the `conda_setup.sh` script try to provide some layers of
+abstraction around conda and pip workflows.  When they work as expected, the
+make rules are the highest level of abstraction provided.  However, due to some
+difficulties with conda in subshells, the `conda_setup.sh` and associated
+`conda_funcs.sh` provide additional lower level abstractions.
+
 ### Choices made for this template
 
 The following choices were made in creating this template project that
 requires conda to manage dependencies.
 
-- use `requirements.txt` instead of `environment.yml`
+- use `requirements.txt` and/or `environment.yml`
+  - only conda can work with `environment.yml` files
   - both conda and pip can work with simple `requirements.txt` files
+    - conda cannot interpret complex syntax in `requirements.txt` files
   - a `requirements.txt` can be installed into any conda env, even `base`
   - a `requirements.dev` file works the same as `requirements.txt` to
-    manage the development dependencies and both files can be used
-    in one `conda install` command with multiple `--file` arguments
+    manage the development dependencies; both files can be used
+    with conda if the syntax is simple or they can be installed by
+    `pip` if the syntax is complex
 
 - if an `environment.yml` file is used:
   - it has no options to separate development dependencies,
@@ -41,12 +50,11 @@ requires conda to manage dependencies.
 - the `conda_setup.sh` utility helps to automate finding conda from
   either miniconda3 or anaconda3 and managing a conda env with a
   few command line options
-  - it assumes that `requirements.txt` and `requirements.dev` are
-    the only files needed to specify the dependencies; it's not
-    yet designed to handle more advanced dependency management
+  - it can work with `environment.yml` and/or `requirements.txt`
+    and `requirements.dev`
   - the `conda_funcs.sh` can be sourced to use a variety of small
     utility functions in `bash`; they have an `_conda3` namespace
-    prefix.
+    prefix
 
 
 ## Contributing
