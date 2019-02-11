@@ -8,6 +8,36 @@
 # $CONDA_ENV.
 #
 
+_conda3_init() {
+    # Prefer to use pyenv to manage miniconda3-latest, but
+    # do not yet enforce that pyenv must be used to install conda.
+    if command pyenv > /dev/null 2>&1; then
+        echo "https://github.com/pyenv/pyenv is installed and activated"
+        if pyenv versions | grep -q miniconda3-latest; then
+            echo "https://github.com/pyenv/pyenv installed miniconda3-latest"
+        else
+            echo "https://github.com/pyenv/pyenv will install miniconda3-latest"
+            pyenv install miniconda3-latest
+        fi
+        pyenv shell miniconda3-latest
+        pyenv rehash
+    elif _conda3_is_function; then
+        # nothing to do, init is done
+        return 0
+    elif _conda3_find_miniconda3; then
+        echo "Found miniconda3 installed (outside pyenv)"
+        source ${CONDA_SH} && return 0
+    elif _conda3_find_anaconda3; then
+        echo "Found anaconda3 installed (outside pyenv)"
+        source ${CONDA_SH} && return 0
+    elif _conda3_install_miniconda3; then
+        pyenv shell miniconda3-latest
+        pyenv rehash
+    else
+        return 1
+    fi
+}
+
 
 #
 # Find conda
@@ -47,20 +77,6 @@ _conda3_find_anaconda3() {
     _conda3_find "/anaconda3/etc/profile.d/conda.sh"
 }
 
-_conda3_init() {
-    if _conda3_is_function; then
-        # nothing to do, init is done
-        return 0
-    elif _conda3_find_miniconda3 || _conda3_find_anaconda3; then
-        source ${CONDA_SH} && return 0
-    elif _conda3_install_miniconda3 && _conda3_find_miniconda3; then
-        source ${CONDA_SH} && return 0
-    else
-        return 1
-    fi
-}
-
-
 #
 # Install miniconda3 and update it
 #
@@ -69,7 +85,46 @@ _conda3_update() {
     conda update --yes -n base -c defaults conda
 }
 
+_conda3_pyenv_init() {
+    test -z "${DEBUG}" || echo "DEBUG: in _conda3_pyenv_init"
+    if command -v pyenv > /dev/null 2>&1; then
+        test -z "${DEBUG}" || echo "DEBUG: https://github.com/pyenv/pyenv is installed and activated"
+    else
+        _conda3_pyenv_install
+    fi
+    # To make immediate use of pyenv in this SHELL, initialize it.
+    export PYENV_ROOT="$HOME/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+}
+
+_conda3_pyenv_install() {
+    test -z "${DEBUG}" || echo "DEBUG: in _conda3_pyenv_install"
+    if test -f ${HOME}/.pyenv; then
+        test -z "${DEBUG}" || echo "DEBUG: https://github.com/pyenv/pyenv is installed in ${HOME}/.pyenv"
+    else
+        echo "https://github.com/pyenv/pyenv will be installed in ${HOME}/.pyenv"
+        git clone https://github.com/pyenv/pyenv.git ${HOME}/.pyenv
+        echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ${HOME}/.bash_profile
+        echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ${HOME}/.bash_profile
+        echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> ${HOME}/.bash_profile
+    fi
+}
+
 _conda3_install_miniconda3() {
+    _conda3_pyenv_init
+    test -z "${DEBUG}" || echo "DEBUG: in _conda3_install_miniconda3"
+    if pyenv versions | grep -q miniconda3-latest; then
+        test -z "${DEBUG}" || echo "DEBUG: https://github.com/pyenv/pyenv installed miniconda3-latest"
+    else
+        echo "https://github.com/pyenv/pyenv will install miniconda3-latest"
+        pyenv install miniconda3-latest
+        _conda3_update
+    fi
+}
+
+_conda3_install_miniconda3_direct() {
+    # Obsolete - use pyenv to install miniconda3-latest
     if uname -a | grep -q -E 'x86_64 GNU/Linux'; then
         curl -s -L -o miniconda_installer.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
         bash miniconda_installer.sh
@@ -149,39 +204,32 @@ _conda3_env_deactivate() {
 
 _conda3_env_install() {
     _conda3_env_create
-    echo "Install ${CONDA_ENV}"
     if test -f environment.yml; then
+        echo "Using conda to update ${CONDA_ENV} with environment.yml"
         conda env update --name ${CONDA_ENV} --file environment.yml
+        conda clean -a -y -q
     fi
-    if test -f requirements.txt; then
-        conda install --yes --name ${CONDA_ENV} --channel conda-forge --file requirements.txt
-    fi
-    conda clean -a -y -q
 }
 
-_conda3_env_install_dev() {
-    _conda3_env_create
-    echo "Install ${CONDA_ENV}"
-    if test -f requirements.dev; then
-        conda install --yes --name ${CONDA_ENV} --channel conda-forge --file requirements.dev
+_conda3_env_pip() {
+    # Use pip to add packages to an active CONDA_ENV
+    requirements_file=$1
+    if test -f ${requirements_file}; then
+        if _conda3_env_exists && _conda3_env_is_active; then
+            echo "Using pip to install ${CONDA_ENV} ${requirements_file}"
+            pip install -r ${requirements_file}
+        fi
+    else
+        echo "There is no ${requirements_file} file"
     fi
-    conda clean -a -y -q
 }
 
 _conda3_env_pip_install() {
-    # Use pip to add packages to an active CONDA_ENV
-    if _conda3_env_exists && _conda3_env_is_active; then
-        echo "Using pip to install ${CONDA_ENV} requirements.txt"
-        pip install -r requirements.txt
-    fi
+    _conda3_env_pip requirements.txt
 }
 
 _conda3_env_pip_install_dev() {
-    # Use pip to add development packages to an active CONDA_ENV
-    if _conda3_env_exists && _conda3_env_is_active; then
-        echo "Using pip to install ${CONDA_ENV} requirements.dev"
-        pip install -r requirements.dev
-    fi
+    _conda3_env_pip requirements.dev
 }
 
 _conda3_env_remove() {
