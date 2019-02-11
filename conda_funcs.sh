@@ -204,39 +204,32 @@ _conda3_env_deactivate() {
 
 _conda3_env_install() {
     _conda3_env_create
-    echo "Install ${CONDA_ENV}"
     if test -f environment.yml; then
+        echo "Using conda to update ${CONDA_ENV} with environment.yml"
         conda env update --name ${CONDA_ENV} --file environment.yml
+        conda clean -a -y -q
     fi
-    if test -f requirements.txt; then
-        conda install --yes --name ${CONDA_ENV} --channel conda-forge --file requirements.txt
-    fi
-    conda clean -a -y -q
 }
 
-_conda3_env_install_dev() {
-    _conda3_env_create
-    echo "Install ${CONDA_ENV}"
-    if test -f requirements.dev; then
-        conda install --yes --name ${CONDA_ENV} --channel conda-forge --file requirements.dev
+_conda3_env_pip() {
+    # Use pip to add packages to an active CONDA_ENV
+    requirements_file=$1
+    if test -f ${requirements_file}; then
+        if _conda3_env_exists && _conda3_env_is_active; then
+            echo "Using pip to install ${CONDA_ENV} ${requirements_file}"
+            pip install -r ${requirements_file}
+        fi
+    else
+        echo "There is no ${requirements_file} file"
     fi
-    conda clean -a -y -q
 }
 
 _conda3_env_pip_install() {
-    # Use pip to add packages to an active CONDA_ENV
-    if _conda3_env_exists && _conda3_env_is_active; then
-        echo "Using pip to install ${CONDA_ENV} requirements.txt"
-        pip install -r requirements.txt
-    fi
+    _conda3_env_pip requirements.txt
 }
 
 _conda3_env_pip_install_dev() {
-    # Use pip to add development packages to an active CONDA_ENV
-    if _conda3_env_exists && _conda3_env_is_active; then
-        echo "Using pip to install ${CONDA_ENV} requirements.dev"
-        pip install -r requirements.dev
-    fi
+    _conda3_env_pip requirements.dev
 }
 
 _conda3_env_remove() {
