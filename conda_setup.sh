@@ -14,7 +14,7 @@ test -z "$CONDA_ENV" && test -f environment.yml && \
     export CONDA_ENV=$(grep 'name:' environment.yml | sed -e 's/name:[ ]*//g')
 
 test -z "$CONDA_ENV" && test -f .env && \
-    CONDA_ENV=$(grep -e '^CONDA_ENV=.*' .env | cut -d '=' -f2)
+    export CONDA_ENV=$(grep -e '^CONDA_ENV=.*' .env | cut -d '=' -f2)
 
 test -z "$CONDA_ENV" && \
     export CONDA_ENV=$(basename $(pwd))
@@ -25,16 +25,11 @@ source ./conda_funcs.sh
 
 _conda3_init
 
-CONDA_FOUND=false
-
-if _conda3_is_function; then
-    CONDA_FOUND=true
-elif which conda > /dev/null 2>&1; then
-    CONDA_FOUND=true
-fi
-
-if ! $CONDA_FOUND; then
+if type conda; then
+    echo
+else
     echo "WARNING: did not find 'conda' command"
+    echo
 fi
 
 
