@@ -9,6 +9,7 @@
 #
 
 _conda3_init() {
+    test -z "${DEBUG}" || echo "DEBUG: in _conda3_init"
     # Prefer to use pyenv to manage miniconda3-latest, but
     # do not yet enforce that pyenv must be used to install conda.
     if command pyenv > /dev/null 2>&1; then
@@ -22,6 +23,7 @@ _conda3_init() {
         pyenv shell miniconda3-latest
         pyenv rehash
     elif _conda3_is_function; then
+        test -z "${DEBUG}" || echo "DEBUG: conda is a function"
         # nothing to do, init is done
         return 0
     elif _conda3_find_miniconda3; then
@@ -31,9 +33,11 @@ _conda3_init() {
         echo "Found anaconda3 installed (outside pyenv)"
         source ${CONDA_SH} && return 0
     elif _conda3_install_miniconda3; then
+        test -z "${DEBUG}" || echo "DEBUG: miniconda3 installed"
         pyenv shell miniconda3-latest
         pyenv rehash
     else
+        test -z "${DEBUG}" || echo "DEBUG: failed to init conda"
         return 1
     fi
 }
@@ -44,25 +48,32 @@ _conda3_init() {
 #
 
 _conda3_is_function() {
+    test -z "${DEBUG}" || echo "DEBUG: in _conda3_is_function"
     if type conda > /dev/null 2>&1; then
         conda_type=$(type -t conda)
         if [[ "${conda_type}" == "function" ]]; then
+            test -z "${DEBUG}" || echo "DEBUG: conda is a function"
             return 0
         fi
     fi
+    test -z "${DEBUG}" || echo "DEBUG: conda is not a function"
     return 1
 }
 
 _conda3_find() {
     conda3_sh=$1
+    test -z "${DEBUG}" || echo "DEBUG: in _conda3_find for $conda3_sh"
     if test -f "${HOME}${conda3_sh}"; then
         export CONDA_SH="${HOME}${conda3_sh}"
+        test -z "${DEBUG}" || echo "DEBUG: found $CONDA_SH"
         return 0
     elif test -f /opt/${conda3_sh}; then
         export CONDA_SH="/opt/${conda3_sh}"
+        test -z "${DEBUG}" || echo "DEBUG: found $CONDA_SH"
         return 0
     elif test -f ${conda3_sh}; then
         export CONDA_SH="${conda3_sh}"
+        test -z "${DEBUG}" || echo "DEBUG: found $CONDA_SH"
         return 0
     else
         return 1
@@ -125,6 +136,7 @@ _conda3_install_miniconda3() {
 
 _conda3_install_miniconda3_direct() {
     # Obsolete - use pyenv to install miniconda3-latest
+    test -z "${DEBUG}" || echo "DEBUG: in _conda3_install_miniconda3_direct"
     if uname -a | grep -q -E 'x86_64 GNU/Linux'; then
         curl -s -L -o miniconda_installer.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
         bash miniconda_installer.sh
