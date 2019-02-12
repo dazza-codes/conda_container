@@ -178,7 +178,7 @@ _conda3_env_echo_deactivate() {
 }
 
 _conda3_env_exists() {
-    if conda info --envs | grep -q "${CONDA_ENV}"; then
+    if conda info --envs | grep -q "envs/${CONDA_ENV}$"; then
         return 0
     else
         echo -e "\nconda env does not exist: ${CONDA_ENV}\n"
@@ -188,7 +188,7 @@ _conda3_env_exists() {
 
 _conda3_env_is_active() {
     # assumes the active conda env is tagged by an '*'.
-    if conda info --envs | grep -q -E "${CONDA_ENV}.*[*]+"; then
+    if conda info --envs | grep -q -E "^${CONDA_ENV}.*[*]+"; then
         return 0
     else
         echo -e "\nERROR: conda env is not active: ${CONDA_ENV}\n"
