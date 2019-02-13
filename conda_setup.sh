@@ -32,6 +32,19 @@ _conda3_env_usage() {
 
 usage: $0 [option]
 
+The options are all mutually exclusive.  The workflow to create a conda
+environment and then install dependencies is as follows:
+
+"""
+export CONDA_ENV=conda_tmp      # a conda env --name
+./conda_setup.sh -c             # create CONDA_ENV
+conda activate \$CONDA_ENV       # do this manually, it's not automated
+./conda_setup.sh -i             # install environment.yml (if present)
+./conda_setup.sh -pi            # install requirements.txt (if present)
+./conda_setup.sh -pd            # install requirements.dev (if present)
+"""
+
+
 options:
 -a   | --activate        info about 'conda activate $CONDA_ENV'
 -d   | --deactivate      info about 'conda deactivate'
@@ -42,6 +55,7 @@ options:
 -l   | --list            conda env list
 -r   | --remove          remove $CONDA_ENV
 -h   | --help
+
 USAGE
 }
 
