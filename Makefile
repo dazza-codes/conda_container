@@ -1,3 +1,6 @@
+# https://www.gnu.org/software/make/manual/html_node/Makefile-Conventions.html
+
+.SUFFIXES:
 
 SHELL = /bin/bash
 
@@ -51,4 +54,21 @@ pytypehint:
 	@mypy $(LIB) tests
 
 .PHONY: pyinit pyclean pycoverage pyflake8 pyformat pylint pytest pytypehint
+
+
+IMAGE = conda_setup
+VERSION = latest
+
+build:
+	git rev-parse HEAD > version
+	docker build -t $(IMAGE) .
+	rm version
+
+history: build
+	docker history $(IMAGE)
+
+run: build
+	docker run --rm -it $(IMAGE) /bin/bash -l
+
+.PHONY: build, history, run
 
