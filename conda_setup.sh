@@ -9,32 +9,27 @@
 
 set -e
 
-
-test -z "$CONDA_ENV" && test -f environment.yml && \
-    export CONDA_ENV=$(grep 'name:' environment.yml | sed -e 's/name:[ ]*//g')
-
-test -z "$CONDA_ENV" && test -f .env && \
-    export CONDA_ENV=$(grep -e '^CONDA_ENV=.*' .env | cut -d '=' -f2)
-
-test -z "$CONDA_ENV" && \
-    export CONDA_ENV=$(basename $(pwd))
-
-echo -e "\nUsing conda env: ${CONDA_ENV}\n"
-
 source ./conda_funcs.sh
 
+_conda3_env
 _conda3_init
 
-if type conda; then
+if test -n "${DEBUG}"; then
     echo
+    env | grep -i 'conda'
+    echo
+fi
+
+if type conda >/dev/null 2>&1; then
+    echo -e "INFO:\t$(conda --version)"
 else
     echo "WARNING: did not find 'conda' command"
-    echo
 fi
 
 
 _conda3_env_usage() {
     cat <<- USAGE
+
 usage: $0 [option]
 
 options:
