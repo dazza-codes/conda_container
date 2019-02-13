@@ -30,32 +30,24 @@ _conda3_env() {
 _conda3_init() {
     test -n "${DEBUG}" && echo "DEBUG: in _conda3_init"
     if _conda3_is_function; then
-        test -n "${DEBUG}" && echo "DEBUG: conda is a function"
-        # nothing to do, init is done
+        # nothing to do, some form of conda init is active
         return 0
     fi
-    # Search for a conda.sh init script.
-    # Prefer to use pyenv to manage miniconda3-latest, but
-    # do not enforce that pyenv must be used to install conda.
-    if _conda3_find_pyenv_miniconda3; then
-        echo -e "INFO:\tFound miniconda3 installed (using pyenv)"
-        source ${CONDA_SH} && \
-            return 0
-        #pyenv shell miniconda3-latest && \
-    elif _conda3_find_miniconda3; then
+    # Search for a conda.sh init script for bash.
+    # Only use pyenv as a last resort to manage miniconda3-latest;
+    # see https://github.com/pyenv/pyenv/issues/1112
+    if _conda3_find_miniconda3; then
         echo -e "INFO:\tFound miniconda3 installed (outside pyenv)"
-        source ${CONDA_SH} && \
-            return 0
+        source ${CONDA_SH} && return 0
     elif _conda3_find_anaconda3; then
         echo -e "INFO:\tFound anaconda3 installed (outside pyenv)"
-        source ${CONDA_SH} && \
-            return 0
+        source ${CONDA_SH} && return 0
+    elif _conda3_find_pyenv_miniconda3; then
+        echo -e "INFO:\tFound miniconda3 installed (using pyenv)"
+        source ${CONDA_SH} && return 0
     elif _conda3_install_miniconda3; then
-        test -n "${DEBUG}" && echo "DEBUG: miniconda3 installed"
-        _conda3_find_pyenv_miniconda3 && \
-            source ${CONDA_SH} && \
-            return 0
-            #pyenv shell miniconda3-latest && \
+        _conda3_find_miniconda3 && \
+        source ${CONDA_SH} && return 0
     else
         test -n "${DEBUG}" && echo "DEBUG: failed to init conda"
         return 1
@@ -116,14 +108,6 @@ _conda3_find_miniconda3() {
 
 _conda3_find_pyenv_miniconda3() {
     _conda3_find "${HOME}/.pyenv/versions/miniconda3-latest/etc/profile.d/conda.sh"
-    #if -f "${CONDA_SH}"; then
-    #    if command pyenv > /dev/null 2>&1; then
-    #        echo "https://github.com/pyenv/pyenv is installed and activated"
-    #        if pyenv versions | grep -q miniconda3-latest; then
-    #            echo "https://github.com/pyenv/pyenv installed miniconda3-latest"
-    #        fi
-    #    fi
-    #fi
 }
 
 #
@@ -132,6 +116,30 @@ _conda3_find_pyenv_miniconda3() {
 
 _conda3_update() {
     conda update --yes -n base -c defaults conda
+}
+
+_conda3_install_miniconda3() {
+    echo -e "INFO:\tInstalling miniconda3"
+    # Use a direct download and install for miniconda3, rather than a
+    # pyenv installation; see https://github.com/pyenv/pyenv/issues/1112
+    _conda3_install_miniconda3_direct
+}
+
+_conda3_install_miniconda3_direct() {
+    test -n "${DEBUG}" && echo "DEBUG: in _conda3_install_miniconda3_direct"
+    if uname -a | grep -q -E 'x86_64 GNU/Linux'; then
+        curl -s -L -o miniconda_installer.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+        bash miniconda_installer.sh
+        rm miniconda_installer.sh
+    elif uname -a | grep -q -E 'Darwin Kernel .*x86_64'; then
+        curl -s -L -o miniconda_installer.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+        bash miniconda_installer.sh
+        rm miniconda_installer.sh
+    else
+        echo "Unknown system requirements, use a manual install; see"
+        echo "https://conda.io/en/latest/miniconda.html"
+        return 1
+    fi
 }
 
 _conda3_pyenv_init() {
@@ -160,35 +168,14 @@ _conda3_pyenv_install() {
     fi
 }
 
-_conda3_install_miniconda3() {
+_conda3_pyenv_install_miniconda3() {
     _conda3_pyenv_init
-    test -n "${DEBUG}" && echo "DEBUG: in _conda3_install_miniconda3"
+    test -n "${DEBUG}" && echo "DEBUG: in _conda3_pyenv_install_miniconda3"
     if pyenv versions | grep -q miniconda3-latest; then
         test -n "${DEBUG}" && echo "DEBUG: https://github.com/pyenv/pyenv installed miniconda3-latest"
     else
         echo "https://github.com/pyenv/pyenv will install miniconda3-latest"
         pyenv install miniconda3-latest
-        _conda3_update
-    fi
-}
-
-_conda3_install_miniconda3_direct() {
-    # Obsolete - use pyenv to install miniconda3-latest
-    test -n "${DEBUG}" && echo "DEBUG: in _conda3_install_miniconda3_direct"
-    if uname -a | grep -q -E 'x86_64 GNU/Linux'; then
-        curl -s -L -o miniconda_installer.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-        bash miniconda_installer.sh
-        rm miniconda_installer.sh
-        _conda3_update
-    elif uname -a | grep -q -E 'Darwin Kernel .*x86_64'; then
-        curl -s -L -o miniconda_installer.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
-        bash miniconda_installer.sh
-        rm miniconda_installer.sh
-        _conda3_update
-    else
-        echo "Unknown system requirements, use a manual install; see"
-        echo "https://conda.io/en/latest/miniconda.html"
-        return 1
     fi
 }
 
