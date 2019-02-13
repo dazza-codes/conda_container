@@ -8,15 +8,19 @@
 # $CONDA_ENV.
 #
 
+
 _conda3_env() {
     test -z "$CONDA_ENV" && test -f environment.yml && \
-        export CONDA_ENV=$(grep 'name:' environment.yml | sed -e 's/name:[ ]*//g')
+        CONDA_ENV=$(grep -E '^name:' environment.yml | sed -e 's/name:[ ]*//g')
+        export CONDA_ENV
 
     test -z "$CONDA_ENV" && test -f .env && \
-        export CONDA_ENV=$(grep -e '^CONDA_ENV=.*' .env | cut -d '=' -f2)
+        CONDA_ENV=$(grep -E '^CONDA_ENV=.*' .env | cut -d '=' -f2)
+        export CONDA_ENV
 
     test -z "$CONDA_ENV" && \
-        export CONDA_ENV=$(basename $(pwd))
+        CONDA_ENV=$(basename "$(pwd)")
+        export CONDA_ENV
 
     if test -n "$CONDA_ENV"; then
         echo -e "INFO:\tUsing conda env: ${CONDA_ENV}"
@@ -36,18 +40,30 @@ _conda3_init() {
     # Search for a conda.sh init script for bash.
     # Only use pyenv as a last resort to manage miniconda3-latest;
     # see https://github.com/pyenv/pyenv/issues/1112
-    if _conda3_find_miniconda3; then
+    if _conda3_find_etc_conda; then
+        echo -e "INFO:\tFound /etc/profile.d/conda.sh"
+        # shellcheck source=tests/fixtures/conda.sh
+        source "${CONDA_SH}" && return 0
+    elif _conda3_find_opt_conda; then
+        echo -e "INFO:\tFound /opt/conda installed (outside pyenv)"
+        # shellcheck source=tests/fixtures/conda.sh
+        source "${CONDA_SH}" && return 0
+    elif _conda3_find_miniconda3; then
         echo -e "INFO:\tFound miniconda3 installed (outside pyenv)"
-        source ${CONDA_SH} && return 0
+        # shellcheck source=tests/fixtures/conda.sh
+        source "${CONDA_SH}" && return 0
     elif _conda3_find_anaconda3; then
         echo -e "INFO:\tFound anaconda3 installed (outside pyenv)"
-        source ${CONDA_SH} && return 0
+        # shellcheck source=tests/fixtures/conda.sh
+        source "${CONDA_SH}" && return 0
     elif _conda3_find_pyenv_miniconda3; then
         echo -e "INFO:\tFound miniconda3 installed (using pyenv)"
-        source ${CONDA_SH} && return 0
+        # shellcheck source=tests/fixtures/conda.sh
+        source "${CONDA_SH}" && return 0
     elif _conda3_install_miniconda3; then
+        # shellcheck source=tests/fixtures/conda.sh
         _conda3_find_miniconda3 && \
-        source ${CONDA_SH} && return 0
+        source "${CONDA_SH}" && return 0
     else
         test -n "${DEBUG}" && echo "DEBUG: failed to init conda"
         return 1
@@ -77,9 +93,9 @@ _conda3_find() {
     test -n "${DEBUG}" && echo "DEBUG: in _conda3_find for $conda3_sh"
     if test -f "${HOME}${conda3_sh}"; then
         export CONDA_SH="${HOME}${conda3_sh}"
-    elif test -f /opt/${conda3_sh}; then
+    elif test -f "/opt/${conda3_sh}"; then
         export CONDA_SH="/opt/${conda3_sh}"
-    elif test -f ${conda3_sh}; then
+    elif test -f "${conda3_sh}"; then
         export CONDA_SH="${conda3_sh}"
     fi
 
@@ -98,12 +114,22 @@ _conda3_find() {
 #    _conda3_find "${HOME}/.pyenv/versions/anaconda3-latest/etc/profile.d/conda.sh"
 #}
 
+
+
+_conda3_find_etc_conda() {
+    _conda3_find "/etc/profile.d/conda.sh"
+}
+
 _conda3_find_anaconda3() {
     _conda3_find "/anaconda3/etc/profile.d/conda.sh"
 }
 
 _conda3_find_miniconda3() {
     _conda3_find "/miniconda3/etc/profile.d/conda.sh"
+}
+
+_conda3_find_opt_conda() {
+    _conda3_find "/opt/conda/etc/profile.d/conda.sh"
 }
 
 _conda3_find_pyenv_miniconda3() {
@@ -157,14 +183,17 @@ _conda3_pyenv_init() {
 
 _conda3_pyenv_install() {
     test -n "${DEBUG}" && echo "DEBUG: in _conda3_pyenv_install"
-    if test -f ${HOME}/.pyenv; then
+    if test -f "${HOME}"/.pyenv; then
         test -n "${DEBUG}" && echo "DEBUG: https://github.com/pyenv/pyenv is installed in ${HOME}/.pyenv"
     else
         echo "https://github.com/pyenv/pyenv will be installed in ${HOME}/.pyenv"
-        git clone https://github.com/pyenv/pyenv.git ${HOME}/.pyenv
-        echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ${HOME}/.bash_profile
-        echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ${HOME}/.bash_profile
-        echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> ${HOME}/.bash_profile
+        git clone https://github.com/pyenv/pyenv.git "${HOME}"/.pyenv
+        # shellcheck disable=SC2016,SC2129
+        echo 'export PYENV_ROOT="$HOME/.pyenv"' >> "${HOME}"/.bash_profile
+        # shellcheck disable=SC2016
+        echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> "${HOME}"/.bash_profile
+        # shellcheck disable=SC2016
+        echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> "${HOME}"/.bash_profile
     fi
 }
 
@@ -224,14 +253,14 @@ _conda3_env_is_active() {
 
 _conda3_env_create() {
     if ! _conda3_env_exists; then
-        conda create --yes --name ${CONDA_ENV}
+        conda create --yes --name "${CONDA_ENV}"
         conda clean -a -y -q
     fi
 }
 
 _conda3_env_activate() {
     if _conda3_env_exists; then
-        conda activate ${CONDA_ENV}
+        conda activate "${CONDA_ENV}"
     fi
 }
 
@@ -243,7 +272,7 @@ _conda3_env_install() {
     _conda3_env_create
     if test -f environment.yml; then
         echo "Using conda to update ${CONDA_ENV} with environment.yml"
-        conda env update --name ${CONDA_ENV} --file environment.yml
+        conda env update --name "${CONDA_ENV}" --file environment.yml
         conda clean -a -y -q
     fi
 }
@@ -251,10 +280,10 @@ _conda3_env_install() {
 _conda3_env_pip() {
     # Use pip to add packages to an active CONDA_ENV
     requirements_file=$1
-    if test -f ${requirements_file}; then
+    if test -f "${requirements_file}"; then
         if _conda3_env_exists && _conda3_env_is_active; then
             echo "Using pip to install ${CONDA_ENV} ${requirements_file}"
-            pip install -r ${requirements_file}
+            pip install -r "${requirements_file}"
         fi
     else
         echo "There is no ${requirements_file} file"
@@ -270,6 +299,6 @@ _conda3_env_pip_install_dev() {
 }
 
 _conda3_env_remove() {
-    conda env remove --name ${CONDA_ENV}
+    conda env remove --name "${CONDA_ENV}"
 }
 
