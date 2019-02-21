@@ -1,0 +1,13 @@
+# https://pip.pypa.io/en/stable/reference/pip_install/#git
+# These requirements.ci  only for gitlab-ci; they
+# will be installed by pip into the conda
+# environment after it is created and activated.
+# Please be advised of the following notes:
+# NOTE: do not move these into a pip clause in an environment.yml file
+# NOTE: these are ONLY used on a gitlab-ci pipeline
+# NOTE: Dockerfile handles installing private repositories
+# NOTE: requirements.txt are for laptop dev/test cycles
+
+# install private git repository packages, e.g.
+#git+https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/org/package.git@tag#egg=package
+
