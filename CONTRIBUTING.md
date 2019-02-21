@@ -3,8 +3,8 @@
 
 ## Get Started
 
-Get started with `make pyinit` to create a new python environment for the project.
-Activate the new environment and then explore the `make py*` targets.
+Get started with `make conda-dev` to create a new python environment for the
+project.  Activate the new environment and then explore the `make py*` targets.
 
 ## Dependencies
 
