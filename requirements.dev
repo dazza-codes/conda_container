@@ -1,3 +1,6 @@
+# Keep these development dependencies out of the requirements.txt & environment.yml files;
+# conda cannot install some of these development libs so use pip to install
+# them into a conda env after conda installs everything else.
 
 # dev utils
 ipdb
@@ -7,11 +10,19 @@ ipython
 sphinx
 
 # tests
+codecov
 pytest
+pytest-benchmark
 pytest-cov
+pytest-datadir
+pytest-mock
+pytest-voluptuous
+pytest-xdist
 
 # static analysis and style
+autopep8
 flake8
+flake8-type-annotations
 mypy
 pylint
 yapf
