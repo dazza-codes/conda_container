@@ -1,14 +1,16 @@
-#
 # https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
 #
-# name is left out on purpose so these dependencies can be installed to any
-# environment using the command line --name option.
-#
+# This environment.yml can be used on a laptop and for a docker build.
+# Please be advised of these important notes:
+# NOTE: do not add a name to this environment (use the CLI --name option)
+# NOTE: do not add a prefix to this environment
+# NOTE: do not add any pip requirements (use pip requirements.txt)
+# NOTE: do not add any private dependencies (use pip requirements.txt)
+# NOTE: do not add development dependencies (use pip requirements.dev)
+# NOTE: do not add CI dependencies (use pip requirements.ci)
 
 channels:
   - conda-forge
 
 dependencies:
   - python>=3.7
-  - pip:
-    - pytest

@@ -1,5 +1,11 @@
-#
-# Use conda_setup.sh to install these
-#
+# https://pip.pypa.io/en/stable/reference/pip_install/#git
+# These requirements.txt will be installed by pip into the conda
+# environment after it is created and activated, only for a laptop.
+# Please be advised of the following notes:
+# NOTE: do not move these into a pip clause in an environment.yml file
+# NOTE: these are ONLY used on a laptop dev/test platform
+# NOTE: Dockerfile handles installing private repositories
 
+# install private git repository packages, e.g.
+#git+ssh://git@gitlab.com/org/package.git@tag#egg=package
 
