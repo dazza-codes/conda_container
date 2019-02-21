@@ -36,7 +36,7 @@ conda activate $CONDA_ENV  # do this manually, it's not automated
     between conda and pypi/pip packaging systems; in some cases, it might help
     to have both an `environment.yml` file and a `requirements.txt` so that
     first conda can install from `environment.yml` and then pip can install from
-    the `requirements.txt` file.
+    the `requirements.txt` file
   - a `requirements.txt` file should contain only additional pip specific
     packages for production purposes
   - a `requirements.dev` file works the same as `requirements.txt` to
