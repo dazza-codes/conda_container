@@ -283,7 +283,7 @@ _conda3_env_pip() {
     if test -f "${requirements_file}"; then
         if _conda3_env_exists && _conda3_env_is_active; then
             echo "Using pip to install ${CONDA_ENV} ${requirements_file}"
-            pip install -r "${requirements_file}"
+            pip install -U -r "${requirements_file}"
         fi
     else
         echo "There is no ${requirements_file} file"
@@ -301,4 +301,3 @@ _conda3_env_pip_install_dev() {
 _conda3_env_remove() {
     conda env remove --name "${CONDA_ENV}"
 }
-
