@@ -11,13 +11,14 @@ LIB ?= src
 CONDA_ENV ?= conda-template
 
 conda-ci:
-	test -n "${CI}" || exit 1  # is this a gitlab CI environment?
-	export CONDA_ENV=$(CONDA_ENV)
+ifdef CI
+	export CONDA_ENV=base
 	source /opt/conda/etc/profile.d/conda.sh  # continuumio/miniconda3
 	conda env update --name "$(CONDA_ENV)" --file environment.yml 
 	conda activate "$(CONDA_ENV)"
 	pip install -r requirements.dev
 	pip install -r requirements.ci
+endif
 
 conda-dev:
 	@export CONDA_ENV=$(CONDA_ENV)
@@ -31,10 +32,11 @@ conda-dev:
 	@_conda3_env_pip_install_dev
 
 pyclean:
-	@rm -rf .coverage coverage.xml report.xml
+	@rm -rf build dist .eggs *.egg-info
+	@rm -rf .benchmarks .coverage coverage.xml htmlcov report.xml .tox
+	@find . -type d -name '.mypy_cache' -exec rm -rf {} +
 	@find . -type d -name '__pycache__' -exec rm -rf {} +
-	@find . -type d -name '.pytest_cache*' -exec rm -rf {} +
-	@find . -type d -name '.mypy_cache*' -exec rm -rf {} +
+	@find . -type d -name '*pytest_cache*' -exec rm -rf {} +
 
 pycoverage:
 	@pytest -W ignore::DeprecationWarning \
@@ -57,11 +59,11 @@ pyflake8: pyclean
 	@flake8 --ignore=E501 $(LIB)
 
 pyformat: pyclean
-	@yapf -ri --verbose ./
+	@black $(LIB) tests
 
 pylint: pyclean
-	@pylint $(LIB)
 	@pylint --disable=missing-docstring tests
+	@pylint $(LIB)
 
 pytest:
 	@pytest
