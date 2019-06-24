@@ -81,16 +81,16 @@ NEW_REPO_URL={new_repo_clone_url}
 
 
 cd ~/tmp/
-git clone git@github.com:darrenleeweber/conda_template.git
+git clone git@github.com:darren.weber/conda_template.git
 cd conda_template/
 git remote -v
-# origin    git@github.com:darrenleeweber/conda_template.git (fetch)
-# origin    git@github.com:darrenleeweber/conda_template.git (push)
+# origin    git@github.com:darren.weber/conda_template.git (fetch)
+# origin    git@github.com:darren.weber/conda_template.git (push)
 
 git remote add ${NEW_REPO} ${NEW_REPO_URL}
 git remote -v
-# origin    git@github.com:darrenleeweber/conda_template.git (fetch)
-# origin    git@github.com:darrenleeweber/conda_template.git (push)
+# origin    git@github.com:darren.weber/conda_template.git (fetch)
+# origin    git@github.com:darren.weber/conda_template.git (push)
 # ${NEW_REPO}  ${NEW_REPO_URL} (fetch)
 # ${NEW_REPO}  ${NEW_REPO_URL} (push)
 
