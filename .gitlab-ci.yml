@@ -1,29 +1,45 @@
 
 # Match the python versions in:
-# - requirements.txt
+# - environment.yml
 # - docker image
 
-image: python:3.7-stretch
+image: continuumio/miniconda3
+
+before_script:
+        ##
+        ## For private git+ssh dependencies, enable the following:
+        ##
+        ## - apt-get update -y -qq && apt-get install -y -qq git make openssh-client
+        ## - eval $(ssh-agent -s)
+        ##   ## Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
+        ## - ssh-add <(echo "$SSH_PRIVATE_KEY" | base64 --decode)
+        ##   ## Create the SSH directory and give it the right permissions
+        ## - mkdir -p ~/.ssh
+        ## - chmod 700 ~/.ssh
+        ## - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+        ## - chmod 644 ~/.ssh/known_hosts
+        ##   ## For git commands, set the user name and email.
+        ## - git config --global user.email "git@gitlab.com"
+        ## - git config --global user.name "gitlab-CI"
+
+        ## Setup conda environment
+        - apt-get update -y -qq && apt-get install -y -qq git make
+        - export CONDA_ENV=base
+        - source /opt/conda/etc/profile.d/conda.sh
+        - make conda-ci
 
 stages:
-  - code-quality
-  - code-test
+        - code-test
 
 code_quality:
-    stage: code-quality
-    script:
-      - make pyinit CONDA_ENV=base
-      - make pylint
-
-code_types:
-    stage: code-quality
-    script:
-      - make pyinit CONDA_ENV=base
-      - make pytypehint
+        allow_failure: true
+        stage: code-test
+        script:
+                - make pylint
+                - make pytypehint
 
 code_test:
-    stage: code-test
-    script:
-      - make pyinit CONDA_ENV=base
-      - make pycoverage
+        stage: code-test
+        script:
+                - make pycoverage
 
