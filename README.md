@@ -1,9 +1,4 @@
-# Conda Project Template
-
-
-## Install
-
-See [INSTALL](INSTALL.md)
+# Conda Container Project Template
 
 ## Usage
 
@@ -21,14 +16,13 @@ difficulties with conda in subshells, the `conda_setup.sh` and associated
 The following choices were made in creating this template project that
 requires conda and pip to manage dependencies.  The recommended workflow
 is to create an conda environment and then install dependencies, like:
-```
+
+```shell
 # CONDA_ENV is the name of a conda environment (it can be `base`)
-CONDA_ENV=conda_template
-./conda_setup.sh -c  # create CONDA_ENV
-conda activate $CONDA_ENV  # do this manually, it's not automated
-./conda_setup.sh -i   # install/update CONDA_ENV with environment.yml
-./conda_setup.sh -pi  # install/update CONDA_ENV with requirements.txt
-./conda_setup.sh -pd  # install/update CONDA_ENV with requirements.dev
+CONDA_ENV=conda_container
+. ./conda_venv.sh
+conda-venv
+./conda_setup.sh -h   # for help
 ```
 
 - use `environment.yml` as the primary dependency specification
@@ -61,36 +55,56 @@ conda activate $CONDA_ENV  # do this manually, it's not automated
   - the `conda_funcs.sh` can be sourced to use a variety of small
     utility functions in `bash`; they have an `_conda3` namespace
     prefix; these are intended to be private functions
-
+  - the `conda_venv.sh` can be sourced to use a small set of
+    utility functions in `bash`; they all begin with `conda-venv`
 
 ## Contributing
 
 See [CONTRIBUTING](CONTRIBUTING.md)
 
+## License
+
+```text
+Copyright 2019-2020 Darren Weber
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
 
 ## Migrating template code to a new git repository
+
+github can facilitate using this repository as a template for a new one. To
+do it manually, try the following tips.
 
 This repository can be used to populate a new project repository by using
 multiple git remotes.  It's not the only way to migrate code to a new repository
 -- for example, using a git export can help to do a clean migration with no git
 history, if that is required.
 
-```
+```shell
 NEW_REPO={new_repo_name}
 NEW_REPO_URL={new_repo_clone_url}
 
-
 cd ~/tmp/
-git clone git@github.com:darren.weber/conda_template.git
-cd conda_template/
+git clone git@github.com:dazza-codes/conda_container.git
+cd conda_container/
 git remote -v
-# origin    git@github.com:darren.weber/conda_template.git (fetch)
-# origin    git@github.com:darren.weber/conda_template.git (push)
+# origin    git@github.com:dazza-codes/conda_container.git (fetch)
+# origin    git@github.com:dazza-codes/conda_container.git (push)
 
 git remote add ${NEW_REPO} ${NEW_REPO_URL}
 git remote -v
-# origin    git@github.com:darren.weber/conda_template.git (fetch)
-# origin    git@github.com:darren.weber/conda_template.git (push)
+# origin    git@github.com:dazza-codes/conda_container.git (fetch)
+# origin    git@github.com:dazza-codes/conda_container.git (push)
 # ${NEW_REPO}  ${NEW_REPO_URL} (fetch)
 # ${NEW_REPO}  ${NEW_REPO_URL} (push)
 
@@ -99,9 +113,8 @@ git push -u ${NEW_REPO} --all
 git push -u ${NEW_REPO} --tags
 
 cd ..
-mv conda_template ${NEW_REPO}
+mv conda_container ${NEW_REPO}
 cd ${NEW_REPO}/
 git remote rm origin
 git remote rename ${NEW_REPO} origin
 ```
-
