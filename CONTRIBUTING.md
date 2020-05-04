@@ -8,8 +8,9 @@ project.  Activate the new environment and then explore the `make py*` targets.
 
 ## Dependencies
 
-The library dependencies are in `requirements.txt` and the development
-dependencies are in `requirements.dev`.
+- the conda dependencies are in `environment.yml`.
+- the pip project dependencies are in `requirements.txt`
+- the pip development dependencies are in `requirements.dev`
 
 ## Development
 
@@ -25,7 +26,7 @@ important to understand [conda](https://docs.conda.io/en/latest/index.html).
 - the documentation is built with [sphinx](http://www.sphinx-doc.org/en/master/usage/quickstart.html)
   - run the `sphinx-quickstart` if the `docs` are not setup
   - `make pydocs`
-- format code with [yapf](https://github.com/google/yapf)
+- format code with [black](https://black.readthedocs.io/en/stable/)
   - `make pyformat`
 - check code with [flake8](http://flake8.pycqa.org/en/latest/)
   - `make pyflake8`

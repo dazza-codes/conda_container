@@ -8,7 +8,7 @@ SHELL = /bin/bash
 
 LIB ?= src
 
-CONDA_ENV ?= conda-template
+CONDA_ENV ?= conda_container
 
 conda-ci:
 ifdef CI
@@ -16,8 +16,8 @@ ifdef CI
 	source /opt/conda/etc/profile.d/conda.sh  # continuumio/miniconda3
 	conda env update --name "$(CONDA_ENV)" --file environment.yml 
 	conda activate "$(CONDA_ENV)"
-	pip install -r requirements.dev
-	pip install -r requirements.ci
+	pip install -U -r requirements.ci
+	pip install -U -r requirements.dev
 endif
 
 conda-dev:
@@ -78,7 +78,7 @@ pytypehint:
 # Docker image
 #
 
-IMAGE = conda_template
+IMAGE = conda_container
 VERSION = latest
 
 build:
@@ -104,8 +104,8 @@ clean:
 history: build
 	docker history $(IMAGE)
 
-run: build
+shell: build
 	docker run --rm -it $(IMAGE) /bin/bash -l
 
-.PHONY: build clean history run
+.PHONY: build clean history shell
 
