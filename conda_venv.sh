@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 # Copyright 2019-2020 Darren Weber
 # 
@@ -79,7 +80,7 @@ conda-venv () {
     else
         conda-venv-create "${py_ver}"
     fi
-    which python
+    command -v poetry > /dev/null
     python --version
 }
 
@@ -87,4 +88,19 @@ conda-pipenv () {
     conda-venv "$1"
     command -v pipenv > /dev/null | python -m pip install -U pipenv
     pipenv --python="$(conda run which python)" --site-packages
+}
+
+conda-install () {
+    if ! command -v conda > /dev/null; then
+        # Support OSX and Linux - a Windows user can add support for it later
+        OS=$(uname)
+        if [ "$OS" == "Darwin" ]; then
+            installer='https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh'
+        elif [ "$OS" == "Linux" ]; then
+            installer='https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh'
+        fi
+        install_script="/tmp/$(basename $installer)"
+        wget --quiet $installer -O "$install_script"
+        /bin/bash "$install_script"
+    fi
 }
