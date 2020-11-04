@@ -20,18 +20,32 @@
 # Source this file from ~/.bashrc or similar shell-init, such
 # as copy the file to /etc/profile.d/
 
+# The conda-venv-py?? functions could be run anytime there is a patch release to
+# any python version, updates to conda or anytime a clean conda env is required
+# with a non-default python version.
 
-# Enable this to create conda env for each python version
-if false; then
+conda-venv-py36 () {
+    conda deactivate
+    conda env remove -n py3.6 || true
     conda create -y -n py3.6 python=3.6
-    conda create -y -n py3.7 python=3.7
-    conda create -y -n py3.8 python=3.8
-fi
+}
 
-# CONDA PYTHON VERSIONS
-alias py36='conda deactivate; conda activate py3.6'
-alias py37='conda deactivate; conda activate py3.7'
-alias py38='conda deactivate; conda activate py3.8'
+conda-venv-py37 () {
+    conda deactivate
+    conda env remove -n py3.7 || true
+    conda create -y -n py3.7 python=3.7
+}
+
+conda-venv-py38 () {
+    conda deactivate
+    conda env remove -n py3.8 || true
+    conda create -y -n py3.8 python=3.8
+}
+
+# declare some useful aliases to use a conda python version
+alias conda-py36='conda deactivate; conda activate py3.6'
+alias conda-py37='conda deactivate; conda activate py3.7'
+alias conda-py38='conda deactivate; conda activate py3.8'
 
 conda-project () {
     # The project name is defined by CONDA_ENV or the current working directory
@@ -91,16 +105,15 @@ conda-pipenv () {
 }
 
 conda-install () {
-    if ! command -v conda > /dev/null; then
-        # Support OSX and Linux - a Windows user can add support for it later
-        OS=$(uname)
-        if [ "$OS" == "Darwin" ]; then
-            installer='https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh'
-        elif [ "$OS" == "Linux" ]; then
-            installer='https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh'
-        fi
-        install_script="/tmp/$(basename $installer)"
-        wget --quiet $installer -O "$install_script"
-        /bin/bash "$install_script"
+    # Support OSX and Linux - a Windows user can add support for it later
+    OS=$(uname)
+    if [ "$OS" == "Darwin" ]; then
+        installer='https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh'
+    elif [ "$OS" == "Linux" ]; then
+        installer='https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh'
     fi
+    install_script="/tmp/$(basename $installer)"
+    wget --quiet $installer -O "$install_script"
+    /bin/bash "$install_script"
 }
+
