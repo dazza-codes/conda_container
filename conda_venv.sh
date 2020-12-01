@@ -15,10 +15,15 @@
 # limitations under the License.
 
 
-# https://python-release-cycle.glitch.me/
-
 # Source this file from ~/.bashrc or similar shell-init, such
 # as copy the file to /etc/profile.d/
+
+# https://python-release-cycle.glitch.me/
+# Declare a minimal python version to support; this is usually the lowest
+# version that is still in active maintenance and it is not the default
+# python version for conda.  As a python version approaches EOF support,
+# bumping this to the next lowest version can assist migration strategies.
+export PYTHON_SUPPORT_VERSION=3.7
 
 # The conda-venv-py?? functions could be run anytime there is a patch release to
 # any python version, updates to conda or anytime a clean conda env is required
@@ -64,7 +69,7 @@ conda-venv-activate () {
 conda-venv-create () {
     # create and activate a conda environment with the name
     # of the current directory (often this is a project name).
-    py_ver="${1:-3.7}"
+    py_ver="${1:-${PYTHON_SUPPORT_VERSION}}"
     wd=$(conda-project)
     conda deactivate
 
@@ -86,7 +91,7 @@ conda-venv-remove () {
 conda-venv () {
     # create and activate a conda environment with the name
     # of the current directory (often this is a project name).
-    py_ver="${1:-3.6}"
+    py_ver="${1:-${PYTHON_SUPPORT_VERSION}}"
     wd=$(conda-project)
 
     if conda env list | grep -E "^${wd}\s+" > /dev/null; then
