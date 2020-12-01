@@ -64,7 +64,7 @@ conda-venv-activate () {
 conda-venv-create () {
     # create and activate a conda environment with the name
     # of the current directory (often this is a project name).
-    py_ver="${1:-3.6}"
+    py_ver="${1:-3.7}"
     wd=$(conda-project)
     conda deactivate
 
