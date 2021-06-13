@@ -118,7 +118,7 @@ conda-install () {
         installer='https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh'
     fi
     install_script="/tmp/$(basename $installer)"
-    wget --quiet $installer -O "$install_script"
-    /bin/bash "$install_script"
+    curl --silent $installer > "$install_script"
+    /bin/bash "$install_script" -u
 }
 
